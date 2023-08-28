@@ -1,9 +1,9 @@
 import './styles/App.css';
-import EnfantCreate from './pages/Enfant/EnfantCreate';
+import { EnfantCreate } from './pages/Enfant/EnfantForm';
 import EnfantsList from './pages/Enfant/EnfantsList';
-import FamilleCreate from './pages/Famille/FamilleCreate';
+import { FamilleCreate } from './pages/Famille/FamilleForm';
 import FamillesList from './pages/Famille/FamillesList';
-import ParrainCreate from './pages/Parrain/ParrainCreate';
+import { ParrainCreate } from './pages/Parrain/ParrainForm';
 import ParrainsList from './pages/Parrain/ParrainsList';
 import ParrainagesList from './pages/Parrainage/ParrainagesList';
 import ParrainageCreate from './pages/Parrainage/ParrainageCreate';
@@ -14,13 +14,16 @@ import Logout from './pages/Auth/Logout';
 import Login from './pages/Auth/Login';
 import { useEffect, useState, useRef } from 'react';
 import { useAuthStateContext } from './context/AuthContext';
+import { useNavigationContext } from './context/NavigationContext';
 
 function App() {
   const [shouldShowButton, setShouldShowButton] = useState(true);
   const prevScrollPos = 0;
+  const { currentPath } = useNavigationContext();
   const { isAuth } = useAuthStateContext();
   const isAuthRef = useRef(isAuth);
   const prevScrollPosRef = useRef(prevScrollPos);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleScroll = () => {
     window.requestAnimationFrame(() => {
@@ -41,18 +44,29 @@ function App() {
   useEffect(() => {
     isAuthRef.current = isAuth;
     setTimeout(() => {
+      setIsLoading(false);
       if (!isAuthRef.current) window.history.pushState({}, '', '/login');
     }, 100);
   }, [isAuth]);
 
+  useEffect(() => {
+    if (currentPath === '/login') {
+      setShouldShowButton(false);
+    }
+  }, [currentPath]);
+
+  if (isLoading) {
+    return null;
+  }
+
   return (
-    <div>
-      <div className="container mx-auto bg-gray-100">
+    <div className="bg-gray-100">
+      <div className="container mx-auto">
         {isAuth && window.location.pathname !== '/login' && (
           <>
             <Sidebar />
             {shouldShowButton && <Logout />}
-            <div className="ml-64 flex items-center justify-center pt-4">
+            <div className="ml-64 flex items-center justify-center py-8">
               <Route path={'/'}>
                 <Home />
               </Route>
@@ -69,7 +83,7 @@ function App() {
                 <ParrainagesList />
               </Route>
             </div>
-            <div className="lg:pr-72 lg:py-10 lg:px-10 sm:px-5 ml-64">
+            <div className="lg:pr-72 lg:px-10 ml-64 ">
               <Route path={'/enfants/ajouter'}>
                 <EnfantCreate />
               </Route>

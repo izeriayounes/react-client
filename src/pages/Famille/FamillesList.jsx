@@ -3,13 +3,15 @@ import Table from '../../components/Table';
 import get from '../../api/apiService';
 import Loading from '../../components/Loading';
 import Input from '../../components/Input';
+import Modal from '../../components/Modal';
+import FamilleCard from './FamilleCard';
 
 function FamillesList() {
   const [isLoading, setIsLoading] = useState(true);
   const [filteredFamilles, setFilteredFamilles] = useState([]);
-
+  const [displayedId, setDisplayedId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [value, setValue] = useState('');
-
   const [familles, setFamilles] = useState([]);
 
   useEffect(() => {
@@ -30,6 +32,19 @@ function FamillesList() {
     getData();
   }, []);
 
+  const displayFamilleDetails = (id) => {
+    openModal();
+    setDisplayedId(id);
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   const config = [
     {
       label: 'Code Famille',
@@ -44,10 +59,6 @@ function FamillesList() {
       render: (familles) => familles.nomMere,
     },
     {
-      label: 'Lieu residence',
-      render: (familles) => familles.lieuResidence,
-    },
-    {
       label: 'Date inscrip.',
       render: (familles) =>
         familles.dateInscription ? new Date(familles.dateInscription).toISOString().split('T')[0] : '',
@@ -56,6 +67,14 @@ function FamillesList() {
       label: 'Debut Kafala',
       render: (familles) =>
         familles.dateDebutKafala ? new Date(familles.dateDebutKafala).toISOString().split('T')[0] : '',
+    },
+    {
+      label: 'Details',
+      render: (familles) => (
+        <button className="text-line text-blue-700 hover:underline" onClick={() => displayFamilleDetails(familles.id)}>
+          details
+        </button>
+      ),
     },
   ];
 
@@ -75,9 +94,14 @@ function FamillesList() {
   return (
     <div>
       {isLoading && <Loading />}
+      {isModalOpen && (
+        <Modal onClose={closeModal} size="inset-y-10 inset-x-80">
+          <FamilleCard famille={familles.filter((e) => e.id === displayedId)} />
+        </Modal>
+      )}
       <div className="font-bold text-blue-800 text-xl mb-4 text-center">Liste des familles</div>
       <Input label="Rechercher par code famille" onChange={handleChange} value={value} register={null} />
-      <Table data={filteredFamilles} config={config} keyFn={keyFn} />
+      <Table data={filteredFamilles} config={config} keyFn={keyFn} onClick={getData} />
     </div>
   );
 }

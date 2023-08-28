@@ -12,8 +12,8 @@ function Modal({ onClose, children, size }) {
 
   return ReactDOM.createPortal(
     <div>
-      <div onClick={onClose} className="fixed inset-0 bg-gray-300 opacity-80 z-10"></div>
-      <div className={'md:flex overflow-auto fixed bg-white rounded-md z-20 ' + size}>{children}</div>
+      <div onClick={onClose} className="fixed inset-0 bg-gray-300 opacity-80 z-10 drop-shadow-2xl"></div>
+      <div className={'flex overflow-auto fixed bg-white rounded-md z-20 ' + size}>{children}</div>
     </div>,
     document.querySelector('.modal-container')
   );

@@ -1,17 +1,54 @@
 import get from '../../api/apiService';
 import { useState, useEffect } from 'react';
+import { BiSolidEdit, BiArrowBack } from 'react-icons/bi';
+import { ParrainEdit } from './ParrainForm';
 
-const ParrainCard = ({
-  parrain: [
-    { id, nom, prenom, cin, fonction, adresse, email, gsm, debutKafala, datePremiereCotisation, cotisationMensuelle },
-  ],
-}) => {
+const ParrainCard = ({ parrain }) => {
+  const {
+    id,
+    nom,
+    prenom,
+    cin,
+    fonction,
+    adresse,
+    email,
+    gsm,
+    debutKafala,
+    datePremiereCotisation,
+    cotisationMensuelle,
+  } = parrain[0];
+
   const debutKafala1 = debutKafala ? new Date(debutKafala).toISOString().split('T')[0] : '';
   const datePremiereCotisation1 = datePremiereCotisation
     ? new Date(datePremiereCotisation).toISOString().split('T')[0]
     : '';
 
+  const fields = {
+    Nom: nom,
+    Prenom: prenom,
+    CIN: cin,
+    Fonction: fonction,
+    Adresse: adresse,
+    Email: email,
+    GSM: gsm,
+    'Date debut kafala': debutKafala1,
+    'Date premiere cotisation': datePremiereCotisation1,
+    'Cotisation mensuelle': cotisationMensuelle,
+  };
+
+  const editIcon = (
+    <span className="absolute top-0 right-0 text-3xl mr-4 mt-4 cursor-pointer" onClick={() => setIsEditMode(true)}>
+      {<BiSolidEdit />}
+    </span>
+  );
+  const backIcon = (
+    <span className="absolute top-0 right-0 text-3xl mr-4 mt-4 cursor-pointer" onClick={() => setIsEditMode(false)}>
+      {<BiArrowBack />}
+    </span>
+  );
+
   const [enfants, setEnfants] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     const getEnfants = async () => {
@@ -22,35 +59,20 @@ const ParrainCard = ({
     getEnfants();
   }, [id]);
 
-  return (
+  return isEditMode ? (
+    <div className="p-10">
+      {backIcon}
+      <ParrainEdit initialData={parrain[0]} />
+    </div>
+  ) : (
     <div className="leading-8 p-10">
-      <p>
-        <span className="font-bold text-gray-700">Nom:</span> {nom} {prenom}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">CIN:</span> {cin}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">Fonction:</span> {fonction}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">Adress:</span> {adresse}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">Email:</span> {email}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">GSM:</span> {gsm}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">Début de Kafala:</span> {debutKafala1}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">Premier contisation:</span> {datePremiereCotisation1}
-      </p>
-      <p>
-        <span className="font-bold text-gray-700">Contisation mensuelle:</span> {cotisationMensuelle}
-      </p>
+      {editIcon}
+      {Object.entries(fields).map(([label, value]) => (
+        <p key={label}>
+          <span className="font-bold text-gray-700">{label}: </span>
+          {value}
+        </p>
+      ))}{' '}
       <span className="font-bold text-gray-700">Enfants:</span>
       {enfants.length > 0 ? (
         enfants.map((e) => {

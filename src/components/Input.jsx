@@ -1,5 +1,11 @@
-function Input({ className, label, id, type, register, ...rest }) {
+function Input({ className, label, id, type, register, onKeyDown, ...rest }) {
   const maxDate = type === 'date' ? new Date().toISOString().split('T')[0] : null;
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  };
+
   return (
     <div className={'mb-4 ' + className}>
       <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 " htmlFor={id}>
@@ -13,6 +19,7 @@ function Input({ className, label, id, type, register, ...rest }) {
         max={maxDate}
         type={type}
         {...rest}
+        onKeyDown={onKeyDown !== null ? handleKeyPress : undefined}
       />
     </div>
   );

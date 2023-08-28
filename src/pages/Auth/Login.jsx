@@ -30,8 +30,8 @@ function Login({ redirect }) {
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <div className="text-center text-xl font-medium mb-6">Bonjour Admin, veuiller s'authetifier.</div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Input label="Nom d'utilisateur" id="userName" type="text" register={register} required />
-          <Input label="Mot de passe" id="password" type="password" register={register} required />
+          <Input label="Nom d'utilisateur" id="userName" type="text" register={register} onKeyDown={null} required />
+          <Input label="Mot de passe" id="password" type="password" register={register} onKeyDown={null} required />
           {showErrorMessage && (
             <div className="text-red-500 text-sm mb-4">Les informations sont incorrectes. Veuillez réessayer.</div>
           )}

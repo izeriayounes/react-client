@@ -1,31 +1,47 @@
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { useForm } from 'react-hook-form';
-import { post } from '../../api/apiService';
+import { post, put } from '../../api/apiService';
 import Loading from '../../components/Loading';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-function ParrainCreate() {
-  const { register, handleSubmit } = useForm();
+function ParrainForm({ initialData }) {
+  const { register, handleSubmit, setValue } = useForm();
   const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = async (data) => {
+  const handleFormSubmit = async (data) => {
     try {
       setIsLoading(true);
-      await post('parrains', data);
+      if (initialData) {
+        await put(`parrains/${initialData.id}`, data);
+      } else {
+        await post('parrains', data);
+      }
     } catch (error) {
-      console.error('error fetching data', error.message);
+      console.log(error.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (initialData) {
+      Object.entries(initialData).forEach(([field, value]) => {
+        if (['debutKafala', 'datePremiereCotisation'].includes(field)) {
+          setValue(field, value?.split('T')[0]);
+          return;
+        }
+        setValue(field, value);
+      });
+    }
+  }, [initialData, setValue]);
 
   return (
     <div className="px-3 md:mb-0">
       <h1 className="mb-4">Veuillez remplir les informations du parrain:</h1>
       {isLoading && <Loading />}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
         <div className="md:flex md:space-x-6 mb-4">
           <Input className="flex-grow md:mb-0" label="Nom" id="nom" type="text" register={register} />
           <Input className="flex-grow md:mb-0" label="Prenom" id="prenom" type="text" register={register} />
@@ -44,14 +60,14 @@ function ParrainCreate() {
           <Input
             className="flex-grow md:mb-0"
             label="Debut parrainage"
-            id="debutKafala "
+            id="debutKafala"
             type="date"
             register={register}
           />
           <Input
             className="flex-grow md:mb-0"
             label="Premiere cotisation"
-            id="datePremiereCotisation "
+            id="datePremiereCotisation"
             type="date"
             register={register}
           />
@@ -67,4 +83,14 @@ function ParrainCreate() {
   );
 }
 
-export default ParrainCreate;
+export default ParrainForm;
+
+function ParrainCreate() {
+  return <ParrainForm />;
+}
+
+function ParrainEdit({ initialData }) {
+  return <ParrainForm initialData={initialData} />;
+}
+
+export { ParrainCreate, ParrainEdit };

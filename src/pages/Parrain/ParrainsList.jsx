@@ -121,7 +121,7 @@ function ParrainsList({ listInModal, onClose, onSelect }) {
       )}
       <div className="font-bold text-blue-800 text-xl mb-4 text-center">Liste des parrains</div>
       <Input label="Rechercher par le CIN" onChange={handleChange} value={value} register={null} />
-      <Table data={filteredParrains} config={config.filter(Boolean)} keyFn={keyFn} />
+      <Table data={filteredParrains} config={config.filter(Boolean)} keyFn={keyFn} onClick={getData} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
-import profilePic from '../../assets/profile.webp';
+import profilePic from '../../assets/profile.jpeg';
 import get from '../../api/apiService';
 import { useState, useEffect } from 'react';
+import { BiSolidEdit, BiArrowBack } from 'react-icons/bi';
+import { EnfantEdit } from './EnfantForm';
 
 const EnfantDetailsCard = ({ enfant }) => {
   const {
@@ -22,20 +24,32 @@ const EnfantDetailsCard = ({ enfant }) => {
   const dateDebutKafala1 = dateDebutKafala ? new Date(dateDebutKafala).toISOString().split('T')[0] : '';
   const src = profilePicture ? `data:image/*;base64,${profilePicture}` : profilePic;
 
-  const [parrains, setParrains] = useState([]);
-  const [parrainages, setParrainages] = useState({});
-
   const fields = {
     Nom: nom,
     Prenom: prenom,
     Sexe: sexe,
-    'Date de naissance': dateNaissance1,
-    'Lieu de naissance': lieuNaissance,
-    'Niveau scolaire': niveauScolaire,
-    "Date d'inscription": dateInscription1,
-    'Debut Kafala': dateDebutKafala1,
-    remarque: remarque,
+    'Date de naissance': dateNaissance1 || '---',
+    'Lieu de naissance': lieuNaissance || '---',
+    'Niveau scolaire': niveauScolaire === 'Selectionner...' ? '---' : niveauScolaire,
+    "Date d'inscription": dateInscription1 || '---',
+    'Debut Kafala': dateDebutKafala1 || '---',
+    Remarque: remarque || '---',
   };
+
+  const editIcon = (
+    <span className="absolute top-0 right-0 text-3xl mr-4 mt-4 cursor-pointer" onClick={() => setIsEditMode(true)}>
+      {<BiSolidEdit />}
+    </span>
+  );
+  const backIcon = (
+    <span className="absolute top-0 right-0 text-3xl mr-4 mt-4 cursor-pointer" onClick={() => setIsEditMode(false)}>
+      {<BiArrowBack />}
+    </span>
+  );
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [parrains, setParrains] = useState([]);
+  const [parrainages, setParrainages] = useState({});
 
   useEffect(() => {
     const getParrains = async () => {
@@ -62,10 +76,16 @@ const EnfantDetailsCard = ({ enfant }) => {
     }
   }, [id, parrains]);
 
-  return (
+  return isEditMode ? (
+    <div>
+      {backIcon}
+      <EnfantEdit initialData={enfant[0]} />
+    </div>
+  ) : (
     <div className="leading-8 md:flex scrollbar">
+      {editIcon}
       <img src={src} alt="Profile pic" className="md:h-auto md:rounded-md rounded-full mx-auto mr-6" />
-      <div className="text-center md:text-left py-2">
+      <div className="text-center md:text-left py-4 ">
         {Object.entries(fields).map(([label, value]) => (
           <p key={label}>
             <span className="font-bold text-gray-700">{label}: </span>
@@ -76,7 +96,7 @@ const EnfantDetailsCard = ({ enfant }) => {
         {parrains.length > 0 ? (
           parrains.map((p) => {
             return (
-              <div key={p.id}>
+              <div key={p.id} className="indent-2">
                 <span className="font-semibold text-purple-600">
                   {p.nom} {p.prenom}
                 </span>{' '}

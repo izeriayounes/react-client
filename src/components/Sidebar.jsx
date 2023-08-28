@@ -47,7 +47,7 @@ function Sidebar() {
       content: (
         <div>
           <Link to={'/parrains'} className={classes}>
-            TOUS LES PARRAIN
+            TOUS LES PARRAINS
           </Link>
           <Link to={'/parrains/ajouter'} className={classes}>
             AJOUTER UN PARRAIN

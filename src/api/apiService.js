@@ -2,18 +2,43 @@ import axios from 'axios';
 
 const API_URL = 'https://localhost:7183/api';
 
-const get = async (table) => {
+const get = async (route) => {
   try {
-    const response = await axios.get(`${API_URL}/${table}`);
+    const response = await axios.get(`${API_URL}/${route}`);
     return response.data;
   } catch (error) {
-    console.error(`Error getting ${table}:`, error);
+    console.error(`Error getting ${route}:`, error);
     throw error;
   }
 };
 
-const post = async (table, data, enfantsId) => {
+const post = async (route, data, enfantsId) => {
   try {
+    const processedData = { ...data };
+    const params = new URLSearchParams();
+
+    for (const key in processedData) {
+      if (processedData[key] === '' && key.includes('date')) {
+        processedData[key] = null;
+      }
+    }
+
+    if (enfantsId)
+      enfantsId.forEach((id) => {
+        params.append('EnfantIds', id);
+      });
+
+    await axios.post(`${API_URL}/${route}`, processedData, { params });
+    console.log(`posted to ${route} successfully`);
+  } catch (error) {
+    console.error(`Error posting data to ${route}:`, error.message);
+    throw error;
+  }
+};
+
+const put = async (route, data, enfantsId) => {
+  try {
+    const processedData = { ...data };
     const params = new URLSearchParams();
 
     if (enfantsId)
@@ -21,10 +46,15 @@ const post = async (table, data, enfantsId) => {
         params.append('EnfantIds', id);
       });
 
-    await axios.post(`${API_URL}/${table}`, data, { params });
-    console.log(`added a ${table} successfully`);
+    for (const key in processedData) {
+      if (processedData[key] === '' && key.includes('date')) {
+        processedData[key] = null;
+      }
+    }
+    await axios.put(`${API_URL}/${route}`, processedData, { params });
+    console.log(`edited ${route} successfully`);
   } catch (error) {
-    console.error(`Error posting data to ${table}:`, error.message);
+    console.error(`Error puting data into ${route}:`, error.message);
     throw error;
   }
 };
@@ -56,5 +86,5 @@ const logout = async () => {
   localStorage.removeItem('token');
 };
 
-export { post, login, logout };
+export { post, put, login, logout };
 export default get;
