@@ -5,7 +5,7 @@ import { post, put } from '../../api/apiService';
 import Loading from '../../components/Loading';
 import { useState, useEffect } from 'react';
 
-function ParrainForm({ initialData }) {
+function ParrainForm({ initialData, getData }) {
   const { register, handleSubmit, setValue } = useForm();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,6 +17,7 @@ function ParrainForm({ initialData }) {
       } else {
         await post('parrains', data);
       }
+      getData();
     } catch (error) {
       console.log(error.message);
     } finally {
@@ -89,8 +90,8 @@ function ParrainCreate() {
   return <ParrainForm />;
 }
 
-function ParrainEdit({ initialData }) {
-  return <ParrainForm initialData={initialData} />;
+function ParrainEdit({ initialData, getData }) {
+  return <ParrainForm initialData={initialData} getData={getData} />;
 }
 
 export { ParrainCreate, ParrainEdit };

@@ -10,7 +10,7 @@ import Loading from '../../components/Loading';
 import { BiArrowBack } from 'react-icons/bi';
 import classNames from 'classnames';
 
-function FamilleForm({ initialData }) {
+function FamilleForm({ initialData, getData }) {
   const typesHabitat = ['locataire', 'propriétaire'];
   const { register, handleSubmit, setValue } = useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,12 +86,12 @@ function FamilleForm({ initialData }) {
   const handleFormSubmit = async (data) => {
     try {
       setIsLoading(true);
-      console.log(data);
       if (initialData) {
         await put(`familles/${initialData.id}`, data, selectedEnfants);
       } else {
         await post('familles', data, selectedEnfants);
       }
+      getData();
     } catch (error) {
       console.log(error.message);
     } finally {
@@ -178,8 +178,8 @@ function FamilleForm({ initialData }) {
 
 export default FamilleForm;
 
-function FamilleEdit({ initialData }) {
-  return <FamilleForm initialData={initialData} />;
+function FamilleEdit({ initialData, getData }) {
+  return <FamilleForm initialData={initialData} getData={getData} />;
 }
 
 function FamilleCreate() {

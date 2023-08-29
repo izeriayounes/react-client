@@ -13,6 +13,7 @@ function FamillesList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [value, setValue] = useState('');
   const [familles, setFamilles] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setFilteredFamilles(familles);
@@ -20,11 +21,14 @@ function FamillesList() {
 
   const getData = async () => {
     try {
+      setIsLoading(true);
       const data = await get('familles');
       setFamilles(data);
-      setIsLoading(false);
+      setCurrentPage(1);
     } catch (error) {
       console.error('Error geting data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -96,12 +100,19 @@ function FamillesList() {
       {isLoading && <Loading />}
       {isModalOpen && (
         <Modal onClose={closeModal} size="inset-y-10 inset-x-80">
-          <FamilleCard famille={familles.filter((e) => e.id === displayedId)} />
+          <FamilleCard famille={familles.filter((e) => e.id === displayedId)} getData={getData} />
         </Modal>
       )}
       <div className="font-bold text-blue-800 text-xl mb-4 text-center">Liste des familles</div>
       <Input label="Rechercher par code famille" onChange={handleChange} value={value} register={null} />
-      <Table data={filteredFamilles} config={config} keyFn={keyFn} onClick={getData} />
+      <Table
+        data={filteredFamilles}
+        config={config}
+        keyFn={keyFn}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        itemsPerPage={8}
+      />
     </div>
   );
 }

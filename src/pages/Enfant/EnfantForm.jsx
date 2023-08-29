@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { post, put } from '../../api/apiService';
 import Loading from '../../components/Loading';
 
-function EnfantForm({ initialData }) {
+function EnfantForm({ initialData, getData }) {
   const schoolLevels = [
     'Primaire - 1ere',
     'Primaire - 2eme',
@@ -47,6 +47,7 @@ function EnfantForm({ initialData }) {
       } else {
         await post('enfants', data);
       }
+      getData();
     } catch (error) {
       console.log(error.message);
     } finally {
@@ -85,10 +86,10 @@ function EnfantForm({ initialData }) {
 function EnfantCreate() {
   return <EnfantForm />;
 }
-function EnfantEdit({ initialData }) {
+function EnfantEdit({ initialData, getData }) {
   return (
     <div className="pt-12 pl-12">
-      <EnfantForm initialData={initialData} />;
+      <EnfantForm initialData={initialData} getData={getData} />;
     </div>
   );
 }

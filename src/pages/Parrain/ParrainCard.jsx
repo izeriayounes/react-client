@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { BiSolidEdit, BiArrowBack } from 'react-icons/bi';
 import { ParrainEdit } from './ParrainForm';
 
-const ParrainCard = ({ parrain }) => {
+const ParrainCard = ({ parrain, getData }) => {
   const {
     id,
     nom,
@@ -62,7 +62,13 @@ const ParrainCard = ({ parrain }) => {
   return isEditMode ? (
     <div className="p-10">
       {backIcon}
-      <ParrainEdit initialData={parrain[0]} />
+      <ParrainEdit
+        initialData={parrain[0]}
+        getData={() => {
+          getData();
+          setIsEditMode(false);
+        }}
+      />
     </div>
   ) : (
     <div className="leading-8 p-10">

@@ -17,8 +17,9 @@ function ParrainagesList() {
   const [parrainData, setParrainData] = useState({});
   const [enfantData, setEnfantData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { register, handleSubmit, reset, setValue } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const [selectedParrainage, setSelectedParrainage] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const icon = <span className="text-2xl mx-4">{<TbCirclesRelation />}</span>;
 
@@ -42,6 +43,7 @@ function ParrainagesList() {
       console.error('Error geting data:', error);
     }
   };
+
   const getEnfant = async (id) => {
     try {
       const data = await get(`enfants/${id}`);
@@ -169,26 +171,21 @@ function ParrainagesList() {
     return `${data.enfantId}${data.parrainId}`;
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     try {
       setIsLoading(true);
       const data1 = {
         ...data,
         isActive: data.isActive === 'Oui',
       };
-      console.log(data1);
-      put(`parrainages?enfantid=${selectedParrainage.enfantId}&parrainid=${selectedParrainage.parrainId}`, data1);
+      await put(`parrainages?enfantid=${selectedParrainage.enfantId}&parrainid=${selectedParrainage.parrainId}`, data1);
+      getParrainages();
+      setIsModalOpen(false);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleButtonClick = () => {
-    setTimeout(() => {
-      setIsModalOpen(false);
-    }, 500);
   };
 
   return (
@@ -207,15 +204,20 @@ function ParrainagesList() {
               <Select id="isActive" label="Active" list={['Oui', 'Non']} register={register} />
               <AreaText label="Commentaire" id="commentaire" register={register} />
 
-              <Button primary onClick={handleButtonClick}>
-                Enregistrer les modifications
-              </Button>
+              <Button primary>Enregistrer les modifications</Button>
             </form>
           </div>
         </Modal>
       )}
       <div className="font-bold text-blue-800 text-xl mb-4 text-center">Liste des parrainages</div>
-      <Table data={parrainages} config={config} keyFn={keyFn} onClick={getParrainages} />
+      <Table
+        data={parrainages}
+        config={config}
+        keyFn={keyFn}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        itemsPerPage={10}
+      />
     </div>
   );
 }

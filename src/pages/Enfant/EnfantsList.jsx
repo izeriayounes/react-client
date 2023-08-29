@@ -13,6 +13,7 @@ function EnfantsList({ listInModal, listInModalForFamille, onSelect, enfantsToFi
   const [displayedId, setDisplayedId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [value, setValue] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setFilteredEnfants(enfants);
@@ -27,6 +28,7 @@ function EnfantsList({ listInModal, listInModalForFamille, onSelect, enfantsToFi
         data = data.filter((ef) => !filteredIds.includes(ef.id));
       }
       setEnfants(data);
+      setCurrentPage(1);
     } catch (error) {
       console.error('Error getting data:', error);
     } finally {
@@ -121,12 +123,19 @@ function EnfantsList({ listInModal, listInModalForFamille, onSelect, enfantsToFi
       {isLoading && <Loading />}
       {isModalOpen && (
         <Modal onClose={closeModal} size="inset-y-10 inset-x-60">
-          <EnfantDetailsCard enfant={enfants.filter((e) => e.id === displayedId)} />
+          <EnfantDetailsCard enfant={enfants.filter((e) => e.id === displayedId)} getData={getData} />
         </Modal>
       )}
       <div className="font-bold text-blue-800 text-xl mb-4 text-center">Liste des enfants</div>
       <Input label="Rechercher par nom" onChange={handleChange} value={value} register={null} />
-      <Table data={filteredEnfants} config={config.filter(Boolean)} onClick={getData} keyFn={keyFn} />
+      <Table
+        data={filteredEnfants}
+        config={config.filter(Boolean)}
+        keyFn={keyFn}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        itemsPerPage={8}
+      />
     </div>
   );
 }

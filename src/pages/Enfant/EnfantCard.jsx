@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { BiSolidEdit, BiArrowBack } from 'react-icons/bi';
 import { EnfantEdit } from './EnfantForm';
 
-const EnfantDetailsCard = ({ enfant }) => {
+const EnfantDetailsCard = ({ enfant, getData }) => {
   const {
     id,
     nom,
@@ -79,12 +79,18 @@ const EnfantDetailsCard = ({ enfant }) => {
   return isEditMode ? (
     <div>
       {backIcon}
-      <EnfantEdit initialData={enfant[0]} />
+      <EnfantEdit
+        initialData={enfant[0]}
+        getData={() => {
+          getData();
+          setIsEditMode(false);
+        }}
+      />
     </div>
   ) : (
     <div className="leading-8 md:flex scrollbar">
       {editIcon}
-      <img src={src} alt="Profile pic" className="md:h-auto md:rounded-md rounded-full mx-auto mr-6" />
+      <img src={src} alt="Profile pic" className="rounded-l-md mx-auto mr-6" />
       <div className="text-center md:text-left py-4 ">
         {Object.entries(fields).map(([label, value]) => (
           <p key={label}>

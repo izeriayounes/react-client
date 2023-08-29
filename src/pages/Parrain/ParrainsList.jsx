@@ -6,13 +6,14 @@ import ParrainCard from './ParrainCard';
 import Modal from '../../components/Modal';
 import Input from '../../components/Input';
 
-function ParrainsList({ listInModal, onClose, onSelect }) {
+function ParrainsList({ listInModal, onSelect }) {
   const [isLoading, setIsLoading] = useState(true);
   const [parrains, setParrains] = useState([]);
   const [filteredParrains, setFilteredParrains] = useState([]);
   const [displayedId, setDisplayedId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [value, setValue] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setFilteredParrains(parrains);
@@ -116,12 +117,19 @@ function ParrainsList({ listInModal, onClose, onSelect }) {
       {isLoading && <Loading />}
       {isModalOpen && (
         <Modal onClose={closeModal} size="inset-y-10 inset-x-96">
-          <ParrainCard parrain={parrains.filter((e) => e.id === displayedId)} />
+          <ParrainCard parrain={parrains.filter((e) => e.id === displayedId)} getData={getData} />
         </Modal>
       )}
       <div className="font-bold text-blue-800 text-xl mb-4 text-center">Liste des parrains</div>
       <Input label="Rechercher par le CIN" onChange={handleChange} value={value} register={null} />
-      <Table data={filteredParrains} config={config.filter(Boolean)} keyFn={keyFn} onClick={getData} />
+      <Table
+        data={filteredParrains}
+        config={config.filter(Boolean)}
+        keyFn={keyFn}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        itemsPerPage={8}
+      />
     </div>
   );
 }

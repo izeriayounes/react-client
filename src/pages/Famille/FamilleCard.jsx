@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { BiSolidEdit, BiArrowBack } from 'react-icons/bi';
 import { FamilleEdit } from './FamilleForm';
 
-const FamilleCard = ({ famille }) => {
+const FamilleCard = ({ famille, getData }) => {
   const {
     id,
     codeFamille,
@@ -63,7 +63,13 @@ const FamilleCard = ({ famille }) => {
   return isEditMode ? (
     <div className="p-10">
       {backIcon}
-      <FamilleEdit initialData={famille[0]} />
+      <FamilleEdit
+        initialData={famille[0]}
+        getData={() => {
+          getData();
+          setIsEditMode(false);
+        }}
+      />
     </div>
   ) : (
     <div className="leading-8 md:flex scrollbar px-10 py-1">

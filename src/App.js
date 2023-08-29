@@ -17,29 +17,10 @@ import { useAuthStateContext } from './context/AuthContext';
 import { useNavigationContext } from './context/NavigationContext';
 
 function App() {
-  const [shouldShowButton, setShouldShowButton] = useState(true);
-  const prevScrollPos = 0;
-  const { currentPath } = useNavigationContext();
+  const { currentPath, navigate } = useNavigationContext();
   const { isAuth } = useAuthStateContext();
   const isAuthRef = useRef(isAuth);
-  const prevScrollPosRef = useRef(prevScrollPos);
   const [isLoading, setIsLoading] = useState(true);
-
-  const handleScroll = () => {
-    window.requestAnimationFrame(() => {
-      const currentScrollPos = window.scrollY;
-      const shouldShow = currentScrollPos < 18 || currentScrollPos <= prevScrollPos;
-      setShouldShowButton(shouldShow);
-      prevScrollPosRef.current = currentScrollPos;
-    });
-  };
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  isAuth && console.log('yo its already: ' + isAuthRef.current);
 
   useEffect(() => {
     isAuthRef.current = isAuth;
@@ -50,22 +31,22 @@ function App() {
   }, [isAuth]);
 
   useEffect(() => {
-    if (currentPath === '/login') {
-      setShouldShowButton(false);
+    if (isAuth && currentPath === '/login') {
+      navigate('/');
     }
-  }, [currentPath]);
+  }, [isAuth, currentPath, navigate]);
 
   if (isLoading) {
     return null;
   }
 
   return (
-    <div className="bg-gray-100">
+    <div>
       <div className="container mx-auto">
         {isAuth && window.location.pathname !== '/login' && (
           <>
             <Sidebar />
-            {shouldShowButton && <Logout />}
+            <Logout />
             <div className="ml-64 flex items-center justify-center py-8">
               <Route path={'/'}>
                 <Home />
