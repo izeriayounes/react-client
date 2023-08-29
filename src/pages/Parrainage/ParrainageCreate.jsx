@@ -30,7 +30,6 @@ function ParrainageCreate() {
   const closeParrainModal = () => {
     setIsParrainModalOpen(false);
   };
-
   const handleEnfantSelection = (enfant) => {
     setSelectedEnfant(enfant);
     closeEnfantModal();
@@ -43,14 +42,13 @@ function ParrainageCreate() {
 
   const onSubmit = (data) => {
     try {
+      setIsLoading(true);
       const parrainageData = {
         ...data,
         enfantId: selectedEnfant.id,
         parrainId: selectedParrain.id,
         isActive: data.isActive === 'Oui',
       };
-      setIsLoading(true);
-      console.log(parrainageData);
       post('parrainages', parrainageData);
     } catch (error) {
       console.error(error);
