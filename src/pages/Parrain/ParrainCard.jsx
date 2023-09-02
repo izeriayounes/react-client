@@ -13,12 +13,12 @@ const ParrainCard = ({ parrain, getData }) => {
     adresse,
     email,
     gsm,
-    debutKafala,
+    dateDebutKafala,
     datePremiereCotisation,
     cotisationMensuelle,
   } = parrain[0];
 
-  const debutKafala1 = debutKafala ? new Date(debutKafala).toISOString().split('T')[0] : '';
+  const dateDebutKafala1 = dateDebutKafala ? new Date(dateDebutKafala).toISOString().split('T')[0] : '';
   const datePremiereCotisation1 = datePremiereCotisation
     ? new Date(datePremiereCotisation).toISOString().split('T')[0]
     : '';
@@ -31,7 +31,7 @@ const ParrainCard = ({ parrain, getData }) => {
     Adresse: adresse,
     Email: email,
     GSM: gsm,
-    'Date debut kafala': debutKafala1,
+    'Date debut kafala': dateDebutKafala1,
     'Date premiere cotisation': datePremiereCotisation1,
     'Cotisation mensuelle': cotisationMensuelle,
   };
@@ -65,8 +65,8 @@ const ParrainCard = ({ parrain, getData }) => {
       <ParrainEdit
         initialData={parrain[0]}
         getData={() => {
-          getData();
           setIsEditMode(false);
+          getData();
         }}
       />
     </div>
@@ -81,15 +81,11 @@ const ParrainCard = ({ parrain, getData }) => {
       ))}{' '}
       <span className="font-bold text-gray-700">Enfants:</span>
       {enfants.length > 0 ? (
-        enfants.map((e) => {
-          return (
-            <div>
-              <span className="font-semibold text-purple-600" key={e.id}>
-                {e.nom} {e.prenom}
-              </span>{' '}
-            </div>
-          );
-        })
+        enfants.map((e) => (
+          <div className="font-semibold text-purple-600" key={e.id}>
+            {e.nom} {e.prenom}
+          </div>
+        ))
       ) : (
         <span className="text-red-500"> Pas de enfants </span>
       )}

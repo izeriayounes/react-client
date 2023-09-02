@@ -12,11 +12,12 @@ import classNames from 'classnames';
 
 function FamilleForm({ initialData, getData }) {
   const typesHabitat = ['locataire', 'propriétaire'];
-  const { register, handleSubmit, setValue } = useForm();
+  const { register, handleSubmit, setValue, reset } = useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEnfants, setSelectedEnfants] = useState([]);
   const [resolvedEnfants, setResolvedEnfants] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     const getEnfantsData = async () => {
@@ -54,83 +55,66 @@ function FamilleForm({ initialData, getData }) {
     setSelectedEnfants([...selectedEnfants, enfant.id]);
   };
 
-  const [enfantsToFilterOut, setEnfantsToFilterOut] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const data = await get(`familles/${initialData.id}/enfants`);
-        setEnfantsToFilterOut(data);
-        setValue('nombreGarcons', 0);
-        setValue('nombreFilles', 0);
-        Object.entries(initialData).forEach(([field, value]) => {
-          if (['dateDebutKafala', 'dateInscription'].includes(field)) {
-            setValue(field, value?.split('T')[0]);
-            return;
-          }
-          setValue(field, value);
-        });
-      } catch (error) {
-        console.error('Error fetching enfants to filter out:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (initialData) {
-      fetchData();
-    }
-  }, [initialData, setValue]);
-
   const handleFormSubmit = async (data) => {
     try {
       setIsLoading(true);
       if (initialData) {
         await put(`familles/${initialData.id}`, data, selectedEnfants);
+        getData();
       } else {
         await post('familles', data, selectedEnfants);
+        reset();
       }
-      getData();
     } catch (error) {
-      console.log(error.message);
+      if (error.response.data === 'CodeFamille already exists') {
+        return setErrorMessage('Ce code famille deja existe!');
+      }
+      console.log(error.response.data);
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (!initialData) {
+      setValue('nombreGarcons', 0);
+      setValue('nombreFilles', 0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (initialData) {
+      Object.entries(initialData).forEach(([field, value]) => {
+        if (['dateDebutKafala', 'dateInscription'].includes(field)) {
+          setValue(field, value?.split('T')[0]);
+          return;
+        }
+        setValue(field, value);
+      });
+    }
+  }, [initialData, setValue]);
+
   return (
-    <div className="px-3 md:mb-0">
+    <div className="px-3">
       {isLoading && <Loading />}
       <h1 className="mb-4">Veuillez remplir les informations de la famille:</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <div className="md:flex md:space-x-6 mb-4">
-          <Input
-            className="flex-grow md:mb-0"
-            label="Code Famille"
-            id="codeFamille"
-            type="text"
-            register={register}
-            required
-          />
-          <Input
-            className="flex-grow md:mb-0"
-            label="Nom Famille"
-            id="nomFamille"
-            type="text"
-            register={register}
-            required
-          />
+        <div className="md:flex space-x-6">
+          <div className="flex-grow relative">
+            <Input label="Code Famille" id="codeFamille" type="text" register={register} required />
+            {errorMessage && <span className="text-red-500 text-xs ml-2 absolute bottom-0">{errorMessage}</span>}
+          </div>
+          <Input className="flex-grow" label="Nom Famille" id="nomFamille" type="text" register={register} required />
         </div>
         <Input label="Nom du pere" id="nomPere" type="text" register={register} />
-        <div className="md:flex md:space-x-6 mb-4">
-          <Input className="flex-grow md:mb-0" label="Nom de mere" id="nomMere" type="text" register={register} />
-          <Input className="flex-grow md:mb-0" label="Sa profession" id="travailMere" type="text" register={register} />
-          <Input className="flex-grow md:mb-0" label="Numero " id="telMere" type="text" register={register} />
+        <div className="md:flex space-x-6">
+          <Input className="flex-grow" label="Nom de mere" id="nomMere" type="text" register={register} />
+          <Input className="flex-grow" label="Sa profession" id="travailMere" type="text" register={register} />
+          <Input className="flex-grow" label="Son Numero " id="telMere" type="tel" register={register} />
         </div>
         <Input label="Lieu de residence" id="lieuResidence" type="text" register={register} />
-        <Input label="Nombre de garcons" id="nombreGarcons" type="number" register={register} />
-        <Input label="Nombre de filles" id="nombreFilles" type="number" register={register} />
+        <Input label="Nombre de garcons" id="nombreGarcons" type="number" register={register} min="0" step="1" />
+        <Input label="Nombre de filles" id="nombreFilles" type="number" register={register} min="0" step="1" />
         <Input label="Date d'inscription" id="dateInscription" type="date" register={register} />
         <Input label="Date debut kafala" id="dateDebutKafala" type="date" register={register} />
         <Select label="Type d'habitat" id="typeHabitat" register={register} list={typesHabitat} />
@@ -139,12 +123,7 @@ function FamilleForm({ initialData, getData }) {
           <Modal onClose={closeModal} size="inset-y-10 inset-x-80">
             <div className={classNames('p-10 pb-10', { relative: initialData })}>
               {initialData ? backIcon : null}
-              <EnfantsList
-                enfantsToFilterOut={enfantsToFilterOut}
-                listInModalForFamille
-                onClose={closeModal}
-                onSelect={handleEnfantSelection}
-              />
+              <EnfantsList listInModalForFamille onClose={closeModal} onSelect={handleEnfantSelection} />
               <Button primary onClick={closeModal}>
                 Valider
               </Button>
@@ -168,8 +147,8 @@ function FamilleForm({ initialData, getData }) {
           </div>
         ))}
 
-        <div className="flex justify-end my-10">
-          <Button primary>Enregistrer</Button>
+        <div className="flex justify-end">
+          <Button primary>{initialData ? 'Enregistrer les modifications' : 'Enregistrer'}</Button>
         </div>
       </form>
     </div>
@@ -183,7 +162,11 @@ function FamilleEdit({ initialData, getData }) {
 }
 
 function FamilleCreate() {
-  return <FamilleForm />;
+  return (
+    <div className="pt-4">
+      <FamilleForm />
+    </div>
+  );
 }
 
 export { FamilleEdit, FamilleCreate };

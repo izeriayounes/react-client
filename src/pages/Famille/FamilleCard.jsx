@@ -66,8 +66,8 @@ const FamilleCard = ({ famille, getData }) => {
       <FamilleEdit
         initialData={famille[0]}
         getData={() => {
-          getData();
           setIsEditMode(false);
+          getData();
         }}
       />
     </div>

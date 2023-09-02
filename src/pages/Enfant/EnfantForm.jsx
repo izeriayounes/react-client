@@ -8,6 +8,7 @@ import Select from '../../components/Select';
 import { useForm } from 'react-hook-form';
 import { post, put } from '../../api/apiService';
 import Loading from '../../components/Loading';
+import 'react-toastify/dist/ReactToastify.css';
 
 function EnfantForm({ initialData, getData }) {
   const schoolLevels = [
@@ -24,7 +25,7 @@ function EnfantForm({ initialData, getData }) {
     'Lycée - 1ere Bac',
     'Lycée - 2eme Bac',
   ];
-  const { register, handleSubmit, setValue } = useForm();
+  const { register, handleSubmit, setValue, reset } = useForm();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -44,10 +45,11 @@ function EnfantForm({ initialData, getData }) {
       setIsLoading(true);
       if (initialData) {
         await put(`enfants/${initialData.id}`, data);
+        getData();
       } else {
         await post('enfants', data);
+        reset();
       }
-      getData();
     } catch (error) {
       console.log(error.message);
     } finally {
@@ -75,7 +77,7 @@ function EnfantForm({ initialData, getData }) {
 
         <AreaText label="Remarques" id="remarque" register={register} />
         <ImgUpload onChange={(encodedData) => setValue('profilePicture', encodedData)} />
-        <div className="flex justify-end my-5">
+        <div className="flex justify-end">
           <Button primary>{!initialData ? 'Enregistrer' : 'Enregister les modifications'}</Button>
         </div>
       </form>
@@ -84,11 +86,15 @@ function EnfantForm({ initialData, getData }) {
 }
 
 function EnfantCreate() {
-  return <EnfantForm />;
+  return (
+    <div className="pt-4">
+      <EnfantForm />
+    </div>
+  );
 }
 function EnfantEdit({ initialData, getData }) {
   return (
-    <div className="pt-12 pl-12">
+    <div className="pt-6 pl-12">
       <EnfantForm initialData={initialData} getData={getData} />;
     </div>
   );

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import Table from '../../components/Table';
-import get from '../../api/apiService';
+import get, { loadEnfantsWithNofamille } from '../../api/apiService';
 import Loading from '../../components/Loading';
 import EnfantDetailsCard from './EnfantCard';
 import Modal from '../../components/Modal';
 import Input from '../../components/Input';
 
-function EnfantsList({ listInModal, listInModalForFamille, onSelect, enfantsToFilterOut }) {
+function EnfantsList({ listInModal, listInModalForFamille, onSelect }) {
   const [isLoading, setIsLoading] = useState(true);
   const [enfants, setEnfants] = useState([]);
   const [filteredEnfants, setFilteredEnfants] = useState([]);
@@ -22,12 +22,15 @@ function EnfantsList({ listInModal, listInModalForFamille, onSelect, enfantsToFi
   const getData = async () => {
     try {
       setIsLoading(true);
-      let data = await get('enfants');
-      if (enfantsToFilterOut) {
-        const filteredIds = enfantsToFilterOut.map((ef) => ef.id);
-        data = data.filter((ef) => !filteredIds.includes(ef.id));
+      if (listInModalForFamille) {
+        const filteredData = await loadEnfantsWithNofamille();
+        console.log(filteredData);
+        setEnfants(filteredData);
+      } else {
+        const data = await get('enfants');
+        setEnfants(data);
       }
-      setEnfants(data);
+      setIsLoading(false);
       setCurrentPage(1);
     } catch (error) {
       console.error('Error getting data:', error);
@@ -38,7 +41,7 @@ function EnfantsList({ listInModal, listInModalForFamille, onSelect, enfantsToFi
 
   useEffect(() => {
     getData();
-  }, [enfantsToFilterOut]);
+  }, []);
 
   const displayEnfantDetails = (id) => {
     openModal();
@@ -126,7 +129,9 @@ function EnfantsList({ listInModal, listInModalForFamille, onSelect, enfantsToFi
           <EnfantDetailsCard enfant={enfants.filter((e) => e.id === displayedId)} getData={getData} />
         </Modal>
       )}
-      <div className="font-bold text-blue-800 text-xl mb-4 text-center">Liste des enfants</div>
+      <div className="font-bold text-blue-800 text-xl mb-4 text-center">
+        Liste des enfants {listInModalForFamille && 'sans familles'}
+      </div>
       <Input label="Rechercher par nom" onChange={handleChange} value={value} register={null} />
       <Table
         data={filteredEnfants}

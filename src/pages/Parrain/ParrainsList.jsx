@@ -79,14 +79,8 @@ function ParrainsList({ listInModal, onSelect }) {
     },
     !listInModal && {
       label: 'D. kafala',
-      render: (parrains) => {
-        if (parrains.debutKafala) {
-          const dateObject = new Date(parrains.debutKafala);
-          return dateObject.toISOString().split('T')[0];
-        } else {
-          return '';
-        }
-      },
+      render: (familles) =>
+        familles.dateDebutKafala ? new Date(familles.dateDebutKafala).toISOString().split('T')[0] : '',
     },
 
     !listInModal && {

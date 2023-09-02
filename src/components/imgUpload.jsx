@@ -19,7 +19,7 @@ function ImgUpload({ onChange }) {
         id="image"
         name="image"
         accept="image/*"
-        className="py-2 px-4 border rounded-lg"
+        className="py-2 px-4 border border-purple-500 rounded bg-white"
         onChange={handleChange}
       />
     </div>

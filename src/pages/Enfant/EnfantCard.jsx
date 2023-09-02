@@ -82,8 +82,8 @@ const EnfantDetailsCard = ({ enfant, getData }) => {
       <EnfantEdit
         initialData={enfant[0]}
         getData={() => {
-          getData();
           setIsEditMode(false);
+          getData();
         }}
       />
     </div>

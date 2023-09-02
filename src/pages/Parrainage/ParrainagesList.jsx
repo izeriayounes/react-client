@@ -179,8 +179,8 @@ function ParrainagesList() {
         isActive: data.isActive === 'Oui',
       };
       await put(`parrainages?enfantid=${selectedParrainage.enfantId}&parrainid=${selectedParrainage.parrainId}`, data1);
-      getParrainages();
       setIsModalOpen(false);
+      getParrainages();
     } catch (error) {
       console.error(error);
     } finally {
@@ -194,7 +194,7 @@ function ParrainagesList() {
       {isModalOpen && (
         <Modal size="inset-x-80 inset-y-10 p-10" onClose={() => setIsModalOpen(false)}>
           <div className="flex-1">
-            <h1 class="mb-4 font-medium text-blue-800">Modification de parrainage:</h1>{' '}
+            <h1 className="mb-4 font-medium text-blue-800">Modification de parrainage:</h1>{' '}
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="flex justify-center font-semibold mb-4 text-purple-500">
                 {parrainData[selectedParrainage.parrainId]} {icon} {enfantData[selectedParrainage.enfantId]}

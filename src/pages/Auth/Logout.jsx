@@ -2,15 +2,13 @@ import Button from '../../components/Button';
 import { logout } from '../../api/apiService';
 import Loading from '../../components/Loading';
 import { useState } from 'react';
-import { useNavigationContext } from '../../context/NavigationContext';
 
 function Logout() {
-  const { navigate } = useNavigationContext();
   const handleLogout = async () => {
     setIsLoading(true);
     await logout();
-    navigate('/login');
     setIsLoading(false);
+    window.location.pathname = '/login';
   };
 
   const [isLoading, setIsLoading] = useState(false);

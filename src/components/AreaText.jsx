@@ -10,7 +10,7 @@ function AreaText({ label, id, register }) {
         {label}
       </label>
       <textarea
-        className="appearance-none block w-full bg-[#f8f8f8] text-gray-700 border border-purple-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+        className="w-full text-gray-700 border border-purple-500 rounded py-3 px-4 leading-tight bg-white"
         id={id}
         {...register(id)}
         onKeyDown={handleKeyPress}

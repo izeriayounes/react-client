@@ -11,7 +11,7 @@ function Select({ register, list, id, label }) {
       </label>
       <select
         id={id}
-        className="appearance-none block w-full bg-[#f8f8f8] text-gray-700 border border-purple-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+        className="border border-purple-500 rounded bg-white w-full text-gray-700 py-3 px-4 leading-tight"
         {...register(id)}
         onKeyDown={handleKeyPress}
       >

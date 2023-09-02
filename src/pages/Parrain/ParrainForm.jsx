@@ -6,7 +6,7 @@ import Loading from '../../components/Loading';
 import { useState, useEffect } from 'react';
 
 function ParrainForm({ initialData, getData }) {
-  const { register, handleSubmit, setValue } = useForm();
+  const { register, handleSubmit, setValue, reset } = useForm();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFormSubmit = async (data) => {
@@ -14,10 +14,11 @@ function ParrainForm({ initialData, getData }) {
       setIsLoading(true);
       if (initialData) {
         await put(`parrains/${initialData.id}`, data);
+        getData();
       } else {
         await post('parrains', data);
+        reset();
       }
-      getData();
     } catch (error) {
       console.log(error.message);
     } finally {
@@ -28,7 +29,7 @@ function ParrainForm({ initialData, getData }) {
   useEffect(() => {
     if (initialData) {
       Object.entries(initialData).forEach(([field, value]) => {
-        if (['debutKafala', 'datePremiereCotisation'].includes(field)) {
+        if (['dateDebutKafala', 'datePremiereCotisation'].includes(field)) {
           setValue(field, value?.split('T')[0]);
           return;
         }
@@ -37,8 +38,14 @@ function ParrainForm({ initialData, getData }) {
     }
   }, [initialData, setValue]);
 
+  useEffect(() => {
+    if (!initialData) {
+      setValue('cotisationMensuelle', 0);
+    }
+  }, []);
+
   return (
-    <div className="px-3 md:mb-0">
+    <div className="px-3">
       <h1 className="mb-4">Veuillez remplir les informations du parrain:</h1>
       {isLoading && <Loading />}
 
@@ -48,20 +55,20 @@ function ParrainForm({ initialData, getData }) {
           <Input className="flex-grow md:mb-0" label="Prenom" id="prenom" type="text" register={register} />
         </div>
 
-        <Input label="CIN" id="cin" type="text" register={register} />
+        <Input label="CIN" id="cin" type="text" register={register} required />
         <Input label="Fonction" id="fonction" type="text" register={register} />
         <Input label="Adresse" id="adresse" type="text" register={register} />
 
         <div className="md:flex md:space-x-6 mb-4">
           <Input className="flex-grow md:mb-0" label="Email" id="email" type="email" register={register} />
-          <Input className="flex-grow md:mb-0" label="GSM" id="gsm" type="number" register={register} />
+          <Input className="flex-grow md:mb-0" label="GSM" id="gsm" type="tel" register={register} />
         </div>
 
         <div className="md:flex md:space-x-6 mb-4">
           <Input
             className="flex-grow md:mb-0"
             label="Debut parrainage"
-            id="debutKafala"
+            id="dateDebutKafala"
             type="date"
             register={register}
           />
@@ -76,8 +83,8 @@ function ParrainForm({ initialData, getData }) {
 
         <Input label="Cotisation mensuelle" id="cotisationMensuelle" type="number" register={register} />
 
-        <div className="flex justify-end my-10">
-          <Button primary>Enregistrer</Button>
+        <div className="flex justify-end">
+          <Button primary>{initialData ? 'Enregistrer les modifications' : 'Enregistrer'}</Button>
         </div>
       </form>
     </div>
@@ -87,7 +94,11 @@ function ParrainForm({ initialData, getData }) {
 export default ParrainForm;
 
 function ParrainCreate() {
-  return <ParrainForm />;
+  return (
+    <div className="pt-4">
+      <ParrainForm />
+    </div>
+  );
 }
 
 function ParrainEdit({ initialData, getData }) {

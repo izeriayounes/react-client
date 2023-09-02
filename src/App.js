@@ -5,88 +5,61 @@ import { FamilleCreate } from './pages/Famille/FamilleForm';
 import FamillesList from './pages/Famille/FamillesList';
 import { ParrainCreate } from './pages/Parrain/ParrainForm';
 import ParrainsList from './pages/Parrain/ParrainsList';
-import ParrainagesList from './pages/Parrainage/ParrainagesList';
 import ParrainageCreate from './pages/Parrainage/ParrainageCreate';
+import ParrainagesList from './pages/Parrainage/ParrainagesList';
 import Home from './pages/Home';
 import Route from './components/Route';
 import Sidebar from './components/Sidebar';
 import Logout from './pages/Auth/Logout';
 import Login from './pages/Auth/Login';
-import { useEffect, useState, useRef } from 'react';
 import { useAuthStateContext } from './context/AuthContext';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigationContext } from './context/NavigationContext';
 
 function App() {
-  const { currentPath, navigate } = useNavigationContext();
   const { isAuth } = useAuthStateContext();
-  const isAuthRef = useRef(isAuth);
   const [isLoading, setIsLoading] = useState(true);
+  const authRef = useRef(isAuth);
+  const { currentPath } = useNavigationContext();
 
   useEffect(() => {
-    isAuthRef.current = isAuth;
+    authRef.current = isAuth;
+
     setTimeout(() => {
       setIsLoading(false);
-      if (!isAuthRef.current) window.history.pushState({}, '', '/login');
-    }, 100);
-  }, [isAuth]);
+      if (!authRef.current && currentPath !== '/login') window.history.pushState({}, '', '/login');
+    }, 1000);
 
-  useEffect(() => {
-    if (isAuth && currentPath === '/login') {
-      navigate('/');
+    if (currentPath === '/login' && authRef.current) {
+      window.location.replace('/');
     }
-  }, [isAuth, currentPath, navigate]);
+  }, [isAuth, currentPath]);
 
-  if (isLoading) {
-    return null;
-  }
+  const isCreateComponent = currentPath.includes('/ajouter');
 
   return (
-    <div>
-      <div className="container mx-auto">
-        {isAuth && window.location.pathname !== '/login' && (
-          <>
-            <Sidebar />
-            <Logout />
-            <div className="ml-64 flex items-center justify-center py-8">
-              <Route path={'/'}>
-                <Home />
-              </Route>
-              <Route path={'/enfants'}>
-                <EnfantsList />
-              </Route>
-              <Route path={'/familles'}>
-                <FamillesList />
-              </Route>
-              <Route path={'/parrains'}>
-                <ParrainsList />
-              </Route>
-              <Route path={'/parrainages'}>
-                <ParrainagesList />
-              </Route>
-            </div>
-            <div className="lg:pr-72 lg:px-10 ml-64 ">
-              <Route path={'/enfants/ajouter'}>
-                <EnfantCreate />
-              </Route>
-              <Route path={'/familles/ajouter'}>
-                <FamilleCreate />
-              </Route>
-              <Route path={'/parrains/ajouter'}>
-                <ParrainCreate />
-              </Route>
-              <Route path={'/parrainages/ajouter'}>
-                <ParrainageCreate />
-              </Route>
-            </div>
-          </>
-        )}
+    !isLoading && (
+      <div>
+        <div className="container mx-auto">
+          {isAuth && <Sidebar />}
+          {isAuth && <Logout />}
+          <div className={`ml-64 flex items-center justify-center ${!isCreateComponent && 'py-8'}`}>
+            <Route path="/">{isAuth && <Home />}</Route>
+            <Route path="/enfants">{isAuth && <EnfantsList />}</Route>
+            <Route path="/familles">{isAuth && <FamillesList />}</Route>
+            <Route path="/parrains">{isAuth && <ParrainsList />}</Route>
+            <Route path="/parrainages">{isAuth && <ParrainagesList />}</Route>
+          </div>
+          <div className="md:pr-72 px-10 md:ml-64">
+            <Route path="/enfants/ajouter">{isAuth && <EnfantCreate />}</Route>
+            <Route path="/familles/ajouter">{isAuth && <FamilleCreate />}</Route>
+            <Route path="/parrains/ajouter">{isAuth && <ParrainCreate />}</Route>
+            <Route path="/parrainages/ajouter">{isAuth && <ParrainageCreate />}</Route>
+          </div>
+          {!isAuth && <Login />}
+        </div>
       </div>
-
-      <Route path={'/login'}>
-        <Login />
-      </Route>
-      {!isAuth && <Login />}
-    </div>
+    )
   );
 }
 

@@ -1,9 +1,6 @@
 import { Fragment } from 'react';
-import '../styles/Table.css';
-// import { GrRefresh } from 'react-icons/gr';
 
 function Table({ data, config, keyFn, onClick, itemsPerPage, currentPage, setCurrentPage }) {
-  // const [rotation, setRotation] = useState(false);
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const pageRange = [];
 
@@ -12,7 +9,7 @@ function Table({ data, config, keyFn, onClick, itemsPerPage, currentPage, setCur
   }
 
   const paginationControls = (
-    <div className="flex justify-center mt-4">
+    <div className="flex justify-center my-4">
       <button
         className="mr-2 px-3 py-1 border border-gray-600 rounded bg-white shadow-sm"
         onClick={() => setCurrentPage(currentPage - 1)}
@@ -40,23 +37,6 @@ function Table({ data, config, keyFn, onClick, itemsPerPage, currentPage, setCur
       </button>
     </div>
   );
-
-  // const handleRefreshClick = async () => {
-  //   setRotation(true);
-  //   onClick();
-  //   setTimeout(() => {
-  //     setRotation(false);
-  //   }, 1000);
-  // };
-
-  // const refreshIcon = (
-  //   <span
-  //     className={`ring-1 absolute top-0 right-0 cursor-pointer border border-1 bg-white p-1 `}
-  //     onClick={handleRefreshClick}
-  //   >
-  //     <GrRefresh className={rotation && 'animate-rotate'} size={20} />
-  //   </span>
-  // );
 
   const renderedHeaders = config.map((column) => {
     if (column.header) {

@@ -1,10 +1,48 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const API_URL = 'https://localhost:7183/api';
 
+const axiosInstance = axios.create();
+
+axiosInstance.defaults.baseURL = API_URL;
+
+const setAuthToken = (token) => {
+  if (token) {
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete axiosInstance.defaults.headers.common['Authorization'];
+  }
+};
+
+axiosInstance.interceptors.response.use(
+  (response) => {
+    if (response.config.method === 'put') {
+      toast.success(`Modification réussite!`);
+    } else if (response.config.method === 'post' && response.config.url !== '/Admin/login') {
+      toast.success(`Création réussite`);
+    }
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      if (window.location.pathname !== '/login') {
+        window.location.pathname = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+const token = localStorage.getItem('token');
+setAuthToken(token);
+
 const get = async (route) => {
   try {
-    const response = await axios.get(`${API_URL}/${route}`);
+    const response = await axiosInstance.get(route, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.error(`Error getting ${route}:`, error);
@@ -12,79 +50,74 @@ const get = async (route) => {
   }
 };
 
-const post = async (route, data, enfantsId) => {
+const performPostOrPut = async (method, route, data, enfantsId) => {
   try {
     const processedData = { ...data };
     const params = new URLSearchParams();
 
     for (const key in processedData) {
-      if (processedData[key] === '' && key.includes('date')) {
+      if (
+        (processedData[key] === '' && key.includes('date')) ||
+        (processedData[key] === '' && key.includes('number'))
+      ) {
         processedData[key] = null;
       }
     }
+    console.log(processedData);
 
-    if (enfantsId)
+    if (enfantsId) {
       enfantsId.forEach((id) => {
         params.append('EnfantIds', id);
       });
+    }
 
-    await axios.post(`${API_URL}/${route}`, processedData, { params });
-    console.log(`posted to ${route} successfully`);
+    await axiosInstance[method](route, processedData, {
+      params,
+      withCredentials: true,
+    });
+    console.log(`${method === 'post' ? 'Posted to' : 'Edited'} ${route} successfully`);
   } catch (error) {
-    console.error(`Error posting data to ${route}:`, error.message);
+    console.error(`Error ${method === 'post' ? 'posting' : 'putting'} data to ${route}:`, error.message);
     throw error;
   }
 };
 
+const post = async (route, data, enfantsId) => {
+  await performPostOrPut('post', route, data, enfantsId);
+};
+
 const put = async (route, data, enfantsId) => {
+  await performPostOrPut('put', route, data, enfantsId);
+};
+
+const loadEnfantsWithNofamille = async () => {
   try {
-    const processedData = { ...data };
-    const params = new URLSearchParams();
-
-    if (enfantsId)
-      enfantsId.forEach((id) => {
-        params.append('EnfantIds', id);
-      });
-
-    for (const key in processedData) {
-      if (processedData[key] === '' && key.includes('date')) {
-        processedData[key] = null;
-      }
-    }
-    await axios.put(`${API_URL}/${route}`, processedData, { params });
-    console.log(`edited ${route} successfully`);
+    const response = await axiosInstance.get('/enfants/enfants-with-no-famille', {
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
-    console.error(`Error puting data into ${route}:`, error.message);
-    throw error;
+    console.error(`Error getting enfant with no famille:`, error);
   }
 };
 
 const login = async (creds) => {
-  const token = 'your-mock-token';
-  return fetch(`${API_URL}/Admin/login`, {
-    method: 'POST',
-    headers: { 'Content-type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(creds),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Login request failed');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (data.message === 'success') {
-        localStorage.setItem('token', token);
-      } else if (data.message === 'invalid credentials') {
-        throw new Error('Invalid credentials');
-      }
-    });
+  try {
+    const response = await axiosInstance.post('/Admin/login', creds);
+    const token = response.data.token;
+    localStorage.setItem('token', token);
+    setAuthToken(token);
+    return response.data;
+  } catch (error) {
+    console.error('Login error:', error.message);
+    throw error;
+  }
 };
 
 const logout = async () => {
   localStorage.removeItem('token');
+  setAuthToken(null);
 };
 
-export { post, put, login, logout };
+export { post, put, login, logout, loadEnfantsWithNofamille };
 export default get;
